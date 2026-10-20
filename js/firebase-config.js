@@ -8,17 +8,22 @@
    ===================================================================== */
 window.CONFIG = {
   firebase: {
-    apiKey: "COLOCA_AQUI",
-    authDomain: "COLOCA_AQUI.firebaseapp.com",
-    projectId: "COLOCA_AQUI",
-    storageBucket: "COLOCA_AQUI.appspot.com",
-    messagingSenderId: "COLOCA_AQUI",
-    appId: "COLOCA_AQUI"
+    apiKey: "AIzaSyDCh3x2jgkEhSawdowgd-xkMg3GFeQ6e4M",
+    authDomain: "ergonomia-4ano.firebaseapp.com",
+    projectId: "ergonomia-4ano",
+    storageBucket: "ergonomia-4ano.firebasestorage.app",
+    messagingSenderId: "884289135836",
+    appId: "1:884289135836:web:371be971fa65130cf88019"
   },
   turmas: [
     { id: "4A", nome: "4.º A" },
     { id: "4B", nome: "4.º B" },
     { id: "4C", nome: "4.º C" },
-    { id: "4D", nome: "4.º D" }
+    { id: "4D", nome: "4.º D" },
+    { id: "4E", nome: "4.º E" },
+    { id: "4F", nome: "4.º F" },
+    { id: "4G", nome: "4.º G" },
+    { id: "4H", nome: "4.º H" },
+    { id: "4I", nome: "4.º I" }
   ]
 };
