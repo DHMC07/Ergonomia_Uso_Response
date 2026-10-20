@@ -365,7 +365,7 @@ MISSIONS[4].steps=[
   function draw(){
     $('#oa').innerHTML=OATH.map((t,k)=>`<p class="${k<=d.ol?'on':''}">${t}</p>`).join('');
     const done=d.ol>=OATH.length;
-    $('#ob').textContent=done?'🏅 Prometo!':'Já disse ▶';$('#ob').classList.toggle('hidden',d.certified);
+    $('#ob').textContent=done?'🏅 Prometo!':'Já disse ▶';$('#ob').classList.toggle('hidden',!!d.certified);
     $('#ob').onclick=()=>{if(!done){d.ol++;beep(600,.1);draw()}else{d.certified=true;confetti();beep(880,.3);cert();draw();stepDone()}};
   }
   function cert(){
