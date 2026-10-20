@@ -2,10 +2,10 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ⚠️ Substitui pelo UID da tua conta de professor
+    // sjWdDwHVPtW1ApfVXuHGyZLF4Qh2
     // (Consola Firebase > Authentication > Utilizadores > coluna "UID do utilizador")
     function eProfessor() {
-      return request.auth != null && request.auth.uid == 'COLOCA_AQUI_O_TEU_UID';
+      return request.auth != null && request.auth.uid == 'sjWdDwHVPtW1ApfVXuHGyZLF4Qh2';
     }
 
     // Quantas missões estão abertas para cada turma: todos leem, só o professor muda
