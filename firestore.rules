@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ⚠️ Substitui pelo UID da tua conta de professor
+    // (Consola Firebase > Authentication > Utilizadores > coluna "UID do utilizador")
+    function eProfessor() {
+      return request.auth != null && request.auth.uid == 'COLOCA_AQUI_O_TEU_UID';
+    }
+
+    // Quantas missões estão abertas para cada turma: todos leem, só o professor muda
+    match /controlo/{turma} {
+      allow read: if true;
+      allow write: if eProfessor();
+    }
+
+    // Um registo por aluno e por sessão
+    match /registos/{id} {
+      // O aluno só lê o seu próprio registo; o professor lê todos
+      allow read: if eProfessor()
+        || (request.auth != null && resource.data.uid == request.auth.uid);
+
+      // O aluno cria o seu registo, sempre como "pendente"
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.estado == 'pendente'
+        && request.resource.data.nome is string
+        && request.resource.data.nome.size() >= 2
+        && request.resource.data.nome.size() <= 30
+        && request.resource.data.turma is string
+        && request.resource.data.turma.size() <= 10
+        && request.resource.data.keys().hasOnly(['nome','turma','uid','estado','missoes','cartaz','concluido','criadoEm','atualizadoEm']);
+
+      // O aluno só atualiza o seu trabalho enquanto estiver pendente;
+      // o professor pode validar
+      allow update: if eProfessor()
+        || (request.auth != null
+            && resource.data.uid == request.auth.uid
+            && resource.data.estado == 'pendente'
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['missoes','cartaz','concluido','atualizadoEm']));
+
+      // Só o professor apaga
+      allow delete: if eProfessor();
+    }
+  }
+}
