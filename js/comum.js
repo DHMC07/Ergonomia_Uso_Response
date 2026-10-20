@@ -29,44 +29,55 @@ function pixel(mood='ola'){
 /* ---------------- figura do posto de trabalho ---------------- */
 // st: costas 0 curvadas/1 encosto · pes 0 no ar/1 apoio · dist 0 perto/1 braço/2 longe · alt 0 baixo/1 olhos/2 alto
 function figure(st,{hotspots=false,found=[]}={}){
-  const mc=[212,250,288][st.dist], mt=[108,78,44][st.alt];
-  const S=st.costas?{x:70,y:105}:{x:122,y:108};
-  const H=st.costas?{x:78,y:163}:{x:88,y:163};
-  let hc={x:S.x+(st.costas?4:16),y:S.y-(st.costas?26:18)};
-  if(st.alt===0){hc.x+=4;hc.y+=6} if(st.alt===2){hc.x-=3;hc.y-=2}
-  const E={x:hc.x+9,y:hc.y-2};
-  const torso=st.costas?`M${H.x} ${H.y} L${S.x} ${S.y}`:`M${H.x} ${H.y} Q100 120 ${S.x} ${S.y}`;
-  const ank=st.pes?{x:136,y:220}:{x:126,y:221};
+  // posições do ecrã: perto · um braço · longe (centro) e topo: baixo · olhos · alto
+  const mc=[176,218,280][st.dist], mt=[106,74,40][st.alt];
+  const S=st.costas?{x:70,y:105}:{x:120,y:108};            // ombro
+  const H=st.costas?{x:76,y:163}:{x:86,y:163};             // anca
+  let hc={x:S.x+(st.costas?4:15),y:S.y-(st.costas?27:18)}; // cabeça
+  if(st.alt===0){hc.x+=4;hc.y+=6} if(st.alt===2){hc.x-=3;hc.y-=3}
+  const E={x:hc.x+8,y:hc.y-3};                             // olho
+  const hand={x:124,y:142};
+  const elb=st.costas?{x:S.x+7,y:S.y+34}:{x:S.x-13,y:S.y+29};
+  const torso=st.costas?`M${H.x} ${H.y} L${S.x} ${S.y}`:`M${H.x} ${H.y} Q98 122 ${S.x} ${S.y}`;
+  const K={x:130,y:166};
+  const ank=st.pes?{x:136,y:219}:{x:124,y:220};
   const ok=st.costas&&st.pes&&st.dist===1&&st.alt===1;
+  const tilt=st.alt===0?18:st.alt===2?-14:0;               // inclinação da cabeça
   let svg=`<svg viewBox="0 0 320 250" role="img" aria-label="Aluno sentado ao computador">
-  <line x1="8" y1="240" x2="312" y2="240" stroke="#9AA6B2" stroke-width="3" stroke-linecap="round"/>
-  <rect x="175" y="148" width="137" height="8" rx="3" fill="#C99A6B"/>
-  <rect x="181" y="156" width="6" height="84" fill="#B5865A"/><rect x="300" y="156" width="6" height="84" fill="#B5865A"/>
-  <rect x="${mc-12}" y="145" width="24" height="4" rx="2" fill="#3A4556"/>
-  <rect x="${mc-3}" y="${mt+34}" width="6" height="${148-(mt+34)}" fill="#3A4556"/>
+  <ellipse cx="160" cy="241" rx="150" ry="5" fill="#9AA6B2" opacity=".35"/>
+  <rect x="112" y="146" width="200" height="7" rx="3" fill="#C99A6B"/>
+  <rect x="116" y="153" width="6" height="87" rx="2" fill="#B5865A"/><rect x="300" y="153" width="6" height="87" rx="2" fill="#B5865A"/>
+  <rect x="${mc-13}" y="143" width="26" height="4" rx="2" fill="#3A4556"/>
+  <rect x="${mc-3}" y="${mt+34}" width="6" height="${146-(mt+34)}" fill="#3A4556"/>
   <rect x="${mc-23}" y="${mt}" width="46" height="34" rx="4" fill="#3A4556"/>
   <rect x="${mc-19}" y="${mt+4}" width="38" height="26" rx="2" fill="#9FD8FF"/>
-  <rect x="176" y="143" width="24" height="5" rx="2" fill="#6B7787"/>
-  <rect x="85" y="177" width="7" height="52" fill="#7D8A9B"/>
-  <line x1="60" y1="232" x2="120" y2="232" stroke="#7D8A9B" stroke-width="6" stroke-linecap="round"/>
-  <circle cx="62" cy="237" r="4" fill="#4E5A69"/><circle cx="118" cy="237" r="4" fill="#4E5A69"/>
-  <rect x="46" y="95" width="11" height="80" rx="5" fill="#8A97A8"/>
-  <rect x="50" y="168" width="80" height="9" rx="4" fill="#8A97A8"/>
-  ${st.pes?'<rect x="120" y="224" width="46" height="16" rx="3" fill="#C99A6B"/>':''}
-  <g stroke-linecap="round" fill="none">
-    <path d="M${H.x} ${H.y} L132 166 L${ank.x} ${ank.y}" stroke="#2F3E55" stroke-width="15" stroke-linejoin="round"/>
-    <path d="M${ank.x} ${ank.y+2} l17 1" stroke="#1F2733" stroke-width="9"/>
-    <path d="${torso}" stroke="#3C7DD9" stroke-width="20"/>
-    <path d="M${S.x} ${S.y} L${hc.x-2} ${hc.y+10}" stroke="#F0B68E" stroke-width="9"/>
-    <path d="M${S.x} ${S.y+4} L${S.x+20} 141 L178 144" stroke="#3C7DD9" stroke-width="9" stroke-linejoin="round"/>
-    <path d="M168 144 L180 144" stroke="#F0B68E" stroke-width="8"/>
+  <rect x="${mc-15}" y="${mt+8}" width="14" height="4" rx="2" fill="#fff" opacity=".7"/>
+  <rect x="112" y="141" width="30" height="5" rx="2" fill="#6B7787"/>
+  <rect x="83" y="177" width="7" height="52" fill="#7D8A9B"/>
+  <path d="M58 232 L116 232" stroke="#7D8A9B" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="60" cy="237" r="4" fill="#4E5A69"/><circle cx="114" cy="237" r="4" fill="#4E5A69"/>
+  <rect x="44" y="94" width="12" height="80" rx="6" fill="#8A97A8"/>
+  <rect x="48" y="168" width="80" height="9" rx="4" fill="#8A97A8"/>
+  ${st.pes?'<rect x="128" y="224" width="44" height="15" rx="3" fill="#C99A6B"/><rect x="128" y="224" width="44" height="4" rx="2" fill="#B5865A"/>':''}
+  <g stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M${H.x} ${H.y} L${K.x} ${K.y} L${ank.x} ${ank.y}" stroke="#2F3E55" stroke-width="15"/>
+    <path d="M${ank.x-2} ${ank.y+2} l18 1" stroke="#1F2733" stroke-width="9"/>
+    <path d="${torso}" stroke="#3C7DD9" stroke-width="21"/>
+    <path d="M${S.x+1} ${S.y-4} L${hc.x-3} ${hc.y+11}" stroke="#E8A87E" stroke-width="9"/>
+    <path d="M${S.x} ${S.y+3} L${elb.x} ${elb.y} L${hand.x-6} ${hand.y}" stroke="#2F6CC4" stroke-width="9"/>
   </g>
-  <circle cx="${hc.x}" cy="${hc.y}" r="15" fill="#F0B68E"/>
-  <path d="M${hc.x-15} ${hc.y-1} a15 15 0 0 1 26 -10 q-10 2 -14 10 z" fill="#3B2A20"/>
-  <circle cx="${E.x}" cy="${E.y}" r="2.2" fill="#233041"/>
+  <circle cx="${hand.x}" cy="${hand.y}" r="4.5" fill="#F0B68E"/>
+  <g transform="rotate(${tilt} ${hc.x} ${hc.y})">
+    <circle cx="${hc.x}" cy="${hc.y}" r="15" fill="#F0B68E"/>
+    <path d="M${hc.x+14} ${hc.y-1} l4 4 l-4 2" fill="#E8A87E"/>
+    <circle cx="${hc.x-3}" cy="${hc.y+1}" r="3.5" fill="#E8A87E"/>
+    <path d="M${hc.x-15} ${hc.y+2} a15 15 0 0 1 28 -9 q-7 -1 -12 3 q-6 0 -9 7 z" fill="#3B2A20"/>
+    <circle cx="${E.x}" cy="${E.y}" r="2" fill="#233041"/>
+    <path d="M${hc.x+6} ${hc.y+7} q4 2 7 -1" stroke="#9C5B45" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  </g>
   <line x1="${E.x+3}" y1="${E.y}" x2="${mc-23}" y2="${mt+10}" stroke="${ok?'#2E9A4F':'#D9453F'}" stroke-width="2" stroke-dasharray="4 4"/>`;
   if(hotspots){
-    const spots={costas:[100,135,24],pes:[138,220,20],ecra:[212,125,26],pescoco:[134,98,20]};
+    const spots={costas:[98,135,24],pes:[128,220,20],ecra:[176,123,26],pescoco:[134,98,20]};
     for(const k in spots){const [x,y,r]=spots[k];
       if(found.includes(k)) svg+=`<circle class="ring" cx="${x}" cy="${y}" r="${r}"/>`;
       svg+=`<circle class="hs" data-k="${k}" cx="${x}" cy="${y}" r="${r}"><title>Erro?</title></circle>`}
