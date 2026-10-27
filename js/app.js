@@ -52,17 +52,24 @@ function renderMap(){
     return `<li><button class="stop ${lock?'lock':''} ${p.done?'done':''}" data-i="${i}" style="--c:var(--m${m.n});--cs:var(--m${m.n}s)" ${lock?'aria-disabled="true"':''}>
       <span class="num">${lock?'🔒':m.n}</span>
       <span class="txt"><b>${m.name}<span class="min">${m.min}</span></b><small>${m.desc}</small></span>
-      <span class="st">${m.id==='m5'?(p.done?'🏅':''):starTxt(p.stars||0)}</span></button></li>`}).join('');
+      <span class="st">${S.cur&&S.cur.i===i&&!p.done&&!lock?'<span class="min" style="font-size:15px">▶ Continuar</span>':m.id==='m5'?(p.done?'🏅':''):starTxt(p.stars||0)}</span></button></li>`}).join('');
   $('#path').querySelectorAll('.stop').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(!unlocked(i)){b.animate&&b.animate([{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'none'}],{duration:250});return}openMission(i)});
   show('map');
 }
 
 function openMission(i){
   const m=MISSIONS[i];cur={m,i,step:0,ok:new Set(),d:{}};setAcc(m.n);
+  const g=S.cur;if(g&&g.i===i){cur.step=Math.min(g.step||0,m.steps.length-1);cur.ok=new Set(g.ok||[]);cur.d=g.d||{}}
   $('#mTitle').textContent=`Missão ${m.n} · ${m.name}`;
   renderStep();show('mission');
 }
-function stepDone(){cur.ok.add(cur.step);updNav()}
+function stepDone(){cur.ok.add(cur.step);updNav();guardarMeio()}
+/* guarda a missão a meio, para o aluno continuar se a página fechar */
+function guardarMeio(){if(!cur||!S.name||(S.prog[cur.m.id]||{}).done)return;try{S.cur={i:cur.i,step:cur.step,ok:[...cur.ok],d:JSON.parse(JSON.stringify(cur.d))};save()}catch(e){}}
+setInterval(()=>{if($('#mission').classList.contains('on'))guardarMeio()},1500);
+addEventListener('pagehide',()=>{if($('#mission').classList.contains('on'))guardarMeio()});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&$('#mission').classList.contains('on'))guardarMeio()});
+function resumir(){const g=S.cur;if(g&&MISSIONS[g.i]&&unlocked(g.i)&&!(S.prog[MISSIONS[g.i].id]||{}).done)openMission(g.i)}
 function updNav(){
   const st=cur.m.steps;
   $('#dots').innerHTML=st.map((_,k)=>`<i class="${k===cur.step?'on':cur.ok.has(k)?'ok':''}"></i>`).join('');
@@ -74,15 +81,15 @@ function updNav(){
 function renderStep(){
   const stage=$('#stage');stage.innerHTML='';
   clearInterval(cur.timer);
-  cur.m.steps[cur.step](stage);updNav();window.scrollTo(0,0);
+  cur.m.steps[cur.step](stage);updNav();window.scrollTo(0,0);guardarMeio();
 }
 $('#prevBtn').onclick=()=>{if(cur.step>0){cur.step--;renderStep()}};
 $('#nextBtn').onclick=()=>{if(!cur.ok.has(cur.step))return;if(cur.step<cur.m.steps.length-1){cur.step++;renderStep()}else finishMission()};
-$('#toMap').onclick=()=>{clearInterval(cur&&cur.timer);renderMap()};
+$('#toMap').onclick=()=>{clearInterval(cur&&cur.timer);guardarMeio();renderMap()};
 
 function finishMission(){
   const m=cur.m,stars=Math.max(1,Math.min(3,cur.d.stars??3));
-  const old=S.prog[m.id]||{};
+  const old=S.prog[m.id]||{};delete S.cur;
   S.prog[m.id]={done:true,stars:Math.max(stars,old.stars||0)};save();confetti();beep(880,.25);
   const campos={['missoes.'+m.id]:S.prog[m.id]};
   if(m.id==='m4'&&cur.d.p){const p=cur.d.p,T=THEMES[p.theme];campos.cartaz={theme:p.theme,title:p.title,rules:p.rules,own:p.own,col:p.col,stk:p.stk,group:p.group,textos:p.rules.map(i=>T.rules[i])}}
@@ -422,7 +429,7 @@ function start(){
     paraRegisto&&paraRegisto();paraControlo&&paraControlo();paraRegisto=paraControlo=null;
     S={name:n,turma:t,prog:{},docId:null};aberta=null;
   }else S.name=n;
-  save();renderMap();ligar();
+  save();renderMap();ligar();resumir();
 }
 $('#goBtn').onclick=start;
 $('#nameIn').onkeydown=e=>{if(e.key==='Enter')start()};
